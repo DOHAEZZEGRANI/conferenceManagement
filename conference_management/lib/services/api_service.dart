@@ -1,31 +1,32 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:conference_management/config/api_config.dart';
 
+final url = '${ApiConfig.baseUrl}/users';
 class ApiService {
-  final String baseUrl = "http://localhost:8080/api";
+  static const String baseUrl = 'http://localhost:8080/api';
 
-  Future<List<dynamic>> getConferences() async {
-    final response = await http.get(Uri.parse('$baseUrl/conferences'));
+  Future<List<dynamic>> fetchUsers() async {
+    final response = await http.get(Uri.parse('$baseUrl/users'));
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
-      throw Exception('Failed to load conferences');
+      throw Exception('Failed to load users');
     }
   }
 
-  Future<bool> login(String email, String password) async {
+  Future<Map<String, dynamic>> createUser(Map<String, dynamic> user) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/auth/login'),
-      body: jsonEncode({"email": email, "password": password}),
+      Uri.parse('$baseUrl/users'),
       headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(user),
     );
 
-    if (response.statusCode == 200) {
-      // Store token securely (e.g., with flutter_secure_storage)
-      return true;
+    if (response.statusCode == 201) {
+      return jsonDecode(response.body);
     } else {
-      return false;
+      throw Exception('Failed to create user');
     }
   }
 }
